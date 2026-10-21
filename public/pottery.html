@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Art Studio | Pottery</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body>
+  <header class="site-header"><a class="logo" href="home.html">Art Studio<span>.</span></a><nav class="site-nav"><a href="home.html">Home</a><a href="wall-painting.html">Wall Painting</a><a href="pottery.html">Pottery</a><a href="account.html">My Account</a><a class="studio-link" href="studio.html">Studio</a><button class="logout-link" type="button">Logout</button></nav></header>
+  <main class="page-content"><section id="pottery-section" class="section content-section"><div class="section-heading"><div><p class="eyebrow">HANDMADE CREATIONS</p><h1>Custom Pottery Requests</h1><p>Choose your pottery item, glaze, quantity, and required date.</p></div></div><form id="pottery-form" class="form-card"><label for="pottery-item">Pottery Item</label><select id="pottery-item" required><option value="">Select an item</option></select><label for="pottery-glaze">Glaze</label><select id="pottery-glaze" required><option value="">Select a glaze</option></select><label for="pottery-quantity">Quantity (1–12)</label><input type="number" id="pottery-quantity" min="1" max="12" value="1" required><label for="pottery-date">Required By</label><input type="date" id="pottery-date" required><button type="submit" id="pottery-submit">Submit Request</button><p id="pottery-message" role="status"></p></form><div class="request-history"><h2>My Pottery Requests</h2><p id="my-pottery-message" role="status"></p><div id="my-pottery-list"></div></div></section></main>
+  <footer><p>Art Studio · Original art, thoughtfully created.</p></footer>
+</body>
+</html>

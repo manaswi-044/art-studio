@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Art Studio | Wall Painting</title><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body>
+  <header class="site-header"><a class="logo" href="home.html">Art Studio<span>.</span></a><nav class="site-nav"><a href="home.html">Home</a><a href="wall-painting.html">Wall Painting</a><a href="pottery.html">Pottery</a><a href="account.html">My Account</a><a class="studio-link" href="studio.html">Studio</a><button class="logout-link" type="button">Logout</button></nav></header>
+  <main class="page-content">
+    <section id="wall-booking" class="section"><div class="section-heading"><div><p class="eyebrow">CUSTOM WALL ART</p><h1>Book a Wall Painting</h1><p>Transform your walls with a painting made for your space.</p></div></div>
+      <div class="booking-container"><form id="booking-form"><label for="booking-date">Preferred date</label><input type="date" id="booking-date" name="booking_date" required><small>Choose a date 7–90 days from today.</small><label for="wall-size">Wall size (square feet)</label><input type="number" id="wall-size" name="wall_size" min="10" max="500" step="1" placeholder="Enter size (10–500 sq. ft.)" required><label for="wall-address">Painting address</label><textarea id="wall-address" name="address" rows="3" placeholder="Enter the complete address" required></textarea><div class="booking-price"><span>Estimated total</span><strong id="booking-total">₹0</strong><small>₹150 per square foot</small></div><button type="submit" id="booking-submit">Request Booking</button><p id="booking-message" role="status"></p></form></div>
+    </section>
+    <section id="my-bookings" class="section"><div class="section-heading"><div><p class="eyebrow">YOUR REQUESTS</p><h2>My Wall Painting Bookings</h2><p>View the status of your wall painting requests.</p></div></div><div id="bookings-message" role="status"></div><div id="bookings-list"><p>Loading your bookings...</p></div></section>
+  </main>
+  <footer><p>Art Studio · Original art, thoughtfully created.</p></footer>
+</body>
+</html>

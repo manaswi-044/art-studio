@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Art Studio | Paintings</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header"><a class="logo" href="home.html">Art Studio<span>.</span></a><nav class="site-nav">
+    <a href="home.html">Home</a><a href="wall-painting.html">Wall Painting</a><a href="pottery.html">Pottery</a><a href="account.html">My Account</a><a class="studio-link" href="studio.html">Studio</a><button class="logout-link" type="button">Logout</button>
+  </nav></header>
+  <main>
+    <section class="hero"><p class="eyebrow">THE COLLECTION</p><h1>Original paintings</h1><p class="hero-description">Discover one-of-a-kind artwork thoughtfully created for your space.</p></section>
+    <section class="gallery-section" id="gallery">
+      <div class="section-heading"><div><p class="eyebrow">ART THAT TELLS A STORY</p><h2>Available works</h2></div><p class="gallery-note">One artwork. One owner.</p></div>
+      <div id="gallery-status" class="message" aria-live="polite">Loading paintings...</div>
+      <div class="hgl-scroll-area" id="hglScrollArea"><div class="hgl-stage" id="hglStage"><p class="hgl-instruction">Scroll down to pan the gallery <span aria-hidden="true">→</span></p><div id="gallery-grid" class="gallery-grid"></div><div class="hgl-count" aria-live="polite"><span id="hglIndex">1</span> / <span id="hglTotal">0</span></div></div></div>
+      <p class="hgl-bottom">End of the collection.</p>
+    </section>
+  </main>
+  <footer><p>Art Studio · Original art, thoughtfully created.</p></footer>
+</body>
+</html>

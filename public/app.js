@@ -7,9 +7,13 @@ const welcomeScreen = document.getElementById("welcome-screen");
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
 let authPanelRequested = false;
+const pageName = window.location.pathname.split("/").pop() || "index.html";
+const isWelcomePage = pageName === "index.html" || pageName === "";
+const customerPages = new Set(["home.html", "wall-painting.html", "pottery.html", "account.html"]);
 
 function showAuthPanel(form) {
   authPanelRequested = true;
+  if (!welcomeScreen || !accountSection || !loginForm || !registerForm) return;
   welcomeScreen.hidden = true;
   accountSection.hidden = false;
   loginForm.hidden = form !== loginForm;
@@ -131,15 +135,14 @@ function setupHorizontalGallery(paintingCount) {
   window.requestAnimationFrame(updateMeasurements);
 }
 
-loadPaintings();
+if (document.getElementById("gallery-grid")) {
+  loadPaintings();
+}
 
-document.getElementById("welcome-login").addEventListener("click", () => {
-  showAuthPanel(loginForm);
-});
-
-document.getElementById("welcome-register").addEventListener("click", () => {
-  showAuthPanel(registerForm);
-});
+const welcomeLogin = document.getElementById("welcome-login");
+const welcomeRegister = document.getElementById("welcome-register");
+if (welcomeLogin) welcomeLogin.addEventListener("click", () => showAuthPanel(loginForm));
+if (welcomeRegister) welcomeRegister.addEventListener("click", () => showAuthPanel(registerForm));
 
 
 async function refreshAccount() {
@@ -152,17 +155,40 @@ async function refreshAccount() {
     const data = await response.json();
     const user = data.user;
 
-    logoutButton.hidden = !user;
-    currentUser.textContent = user
-      ? `Logged in as ${user.email}`
-      : "";
+    if (logoutButton) logoutButton.hidden = !user;
+    if (currentUser) {
+      currentUser.textContent = user ? `Logged in as ${user.email}` : "";
+    }
 
-    if (user) {
-      authPanelRequested = false;
-      welcomeScreen.hidden = true;
-      accountSection.hidden = true;
-    } else if (!authPanelRequested) {
-      welcomeScreen.hidden = false;
+    const studioLinks = document.querySelectorAll(".studio-link");
+    studioLinks.forEach((link) => {
+      link.hidden = !user || user.role !== "studio";
+    });
+
+    if (!user) {
+      if (!isWelcomePage && (customerPages.has(pageName) || pageName === "studio.html")) {
+        window.location.replace("index.html");
+        return;
+      }
+      if (welcomeScreen && accountSection && !authPanelRequested) {
+        welcomeScreen.hidden = false;
+        accountSection.hidden = true;
+      }
+      return;
+    }
+
+    if (isWelcomePage) {
+      window.location.replace(user.role === "studio" ? "studio.html" : "home.html");
+      return;
+    }
+
+    if (pageName === "studio.html" && user.role !== "studio") {
+      window.location.replace("home.html");
+      return;
+    }
+
+    if (welcomeScreen) welcomeScreen.hidden = true;
+    if (accountSection && !document.getElementById("account-section")?.closest(".auth-page")) {
       accountSection.hidden = true;
     }
 
@@ -193,10 +219,12 @@ const potterySection = document.getElementById("pottery-section");
 
     // Refresh data appropriate to the logged-in role
     if (isCustomer) {
-      await loadPurchases();
-      await loadMyBookings();
-      await loadPotteryOptions();
-      await loadMyPottery();
+      if (document.getElementById("purchases-grid")) await loadPurchases();
+      if (document.getElementById("bookings-list")) await loadMyBookings();
+      if (document.getElementById("pottery-item")) {
+        await loadPotteryOptions();
+        await loadMyPottery();
+      }
     } else if (user && user.role === "studio") {
       await loadStudioBookings();
       if (studioPotterySection) studioPotterySection.hidden = false;
@@ -204,43 +232,45 @@ const potterySection = document.getElementById("pottery-section");
     }
   } catch (error) {
     console.error("Account check failed:", error);
-    accountMessage.textContent = "Could not check your account.";
+    if (accountMessage) accountMessage.textContent = "Could not check your account.";
   }
 }
 
 
-document.getElementById("register-form").addEventListener("submit", async (event) => {
+if (registerForm) registerForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  accountMessage.textContent = "Creating account...";
+  if (accountMessage) accountMessage.textContent = "Creating account...";
 
   try {
+    const email = document.getElementById("register-email").value;
+    const password = document.getElementById("register-password").value;
     const response = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: document.getElementById("register-email").value,
-        password: document.getElementById("register-password").value
-      })
+      body: JSON.stringify({ email, password })
     });
 
     const data = await response.json();
-    accountMessage.textContent = data.message || data.error;
-
-
+    if (accountMessage) accountMessage.textContent = data.message || data.error;
     if (response.ok) {
-      document.getElementById("login-email").value =
-        document.getElementById("register-email").value;
-      document.getElementById("login-password").value = "";
-      document.getElementById("register-form").reset();
+      const loginResponse = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      if (!loginResponse.ok) {
+        throw new Error("Account created, but automatic login failed.");
+      }
+      window.location.replace("home.html");
     }
   } catch (error) {
-    accountMessage.textContent = "Could not connect to the server.";
+    if (accountMessage) accountMessage.textContent = error.message || "Could not connect to the server.";
   }
 });
 
-document.getElementById("login-form").addEventListener("submit", async (event) => {
+if (loginForm) loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-  accountMessage.textContent = "Logging in...";
+  if (accountMessage) accountMessage.textContent = "Logging in...";
 
   try {
     const response = await fetch("/api/auth/login", {
@@ -253,36 +283,32 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
     });
 
     const data = await response.json();
-    accountMessage.textContent = data.message || data.error;
-
-   if (response.ok) {
-  document.getElementById("login-form").reset();
-  await refreshAccount();
-  accountSection.hidden = true;
-
-document.getElementById("gallery").scrollIntoView({
-  behavior: "smooth",
-  block: "start"
-});
-}
+    if (accountMessage) accountMessage.textContent = data.message || data.error;
+    if (response.ok) {
+      window.location.replace(data.user?.role === "studio" ? "studio.html" : "home.html");
+    }
   } catch (error) {
-    accountMessage.textContent = "Could not connect to the server.";
+    if (accountMessage) accountMessage.textContent = "Could not connect to the server.";
   }
 });
 
-logoutButton.addEventListener("click", async () => {
+async function logout() {
   try {
     const response = await fetch("/api/auth/logout", {
       method: "POST"
     });
 
     const data = await response.json();
-    accountMessage.textContent = data.message || data.error;
-    await refreshAccount();
-    
+    if (!response.ok) throw new Error(data.error || "Could not log out.");
+    window.location.replace("index.html");
   } catch (error) {
-    accountMessage.textContent = "Could not log out.";
+    if (accountMessage) accountMessage.textContent = error.message;
   }
+}
+
+if (logoutButton) logoutButton.addEventListener("click", logout);
+document.querySelectorAll(".logout-link").forEach((button) => {
+  button.addEventListener("click", logout);
 });
 
 refreshAccount();
@@ -291,6 +317,7 @@ async function loadPurchases() {
   const message = document.getElementById("purchases-message");
   const grid = document.getElementById("purchases-grid");
 
+  if (!message || !grid) return;
   message.textContent = "Loading purchases...";
   grid.innerHTML = "";
 
@@ -331,7 +358,8 @@ async function loadPurchases() {
 }
 
 // Handle clicks on Buy Painting buttons
-document.getElementById("gallery-grid").addEventListener("click", async (event) => {
+const galleryGrid = document.getElementById("gallery-grid");
+if (galleryGrid) galleryGrid.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-buy-id]");
   if (!button) return;
 
@@ -367,7 +395,8 @@ document.getElementById("gallery-grid").addEventListener("click", async (event) 
 });
 
 // Handle purchase cancellations
-document.getElementById("purchases-grid").addEventListener("click", async (event) => {
+const purchasesGrid = document.getElementById("purchases-grid");
+if (purchasesGrid) purchasesGrid.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-cancel-id]");
   if (!button) return;
 
@@ -402,7 +431,8 @@ document.getElementById("purchases-grid").addEventListener("click", async (event
   }
 });
 
-document.getElementById("refresh-purchases").addEventListener("click", loadPurchases);
+const refreshPurchases = document.getElementById("refresh-purchases");
+if (refreshPurchases) refreshPurchases.addEventListener("click", loadPurchases);
 
 
 /* WALL PAINTING BOOKING FORM */
@@ -846,7 +876,8 @@ if (!requests || !requests.length) {
   }
 }
 
-document.getElementById("pottery-form").addEventListener("submit", async event => {
+const potteryForm = document.getElementById("pottery-form");
+if (potteryForm) potteryForm.addEventListener("submit", async event => {
   event.preventDefault();
 
   const message = document.getElementById("pottery-message");
@@ -950,7 +981,7 @@ async function loadStudioPottery() {
     message.textContent = error.message;
   }
 }
-accountButton.addEventListener("click", () => {
+if (accountButton) accountButton.addEventListener("click", () => {
   // If logged in, show or hide the account details.
   if (!logoutButton.hidden) {
     accountSection.hidden = !accountSection.hidden;
@@ -960,13 +991,13 @@ accountButton.addEventListener("click", () => {
   // If logged out, open both authentication forms.
   authPanelRequested = true;
 
-  welcomeScreen.hidden = true;
-  accountSection.hidden = false;
+  if (welcomeScreen) welcomeScreen.hidden = true;
+  if (accountSection) accountSection.hidden = false;
 
-  document.getElementById("login-form").hidden = false;
-  document.getElementById("register-form").hidden = false;
+  if (loginForm) loginForm.hidden = false;
+  if (registerForm) registerForm.hidden = false;
 
-  accountSection.scrollIntoView({
+  if (accountSection) accountSection.scrollIntoView({
     behavior: "smooth",
     block: "center"
   });

@@ -41,8 +41,80 @@ a {
 
 .site-header nav {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 28px;
   font-size: 14px;
+}
+
+.site-nav a,
+.logout-link {
+  color: #29251f;
+}
+
+.site-nav a:hover,
+.logout-link:hover {
+  color: #a45d42;
+}
+
+.logout-link {
+  border: 1px solid #29251f;
+  padding: 9px 14px;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.page-content {
+  min-height: calc(100vh - 150px);
+}
+
+.auth-page {
+  min-height: 100vh;
+  padding: 12vh 7%;
+  background: #eee7dc;
+}
+
+.auth-page .account-section {
+  max-width: 900px;
+  margin: 0 auto;
+  border: 1px solid #e8e1d7;
+}
+
+.page-content > .section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.form-card {
+  max-width: 620px;
+  display: grid;
+  gap: 10px;
+  padding: 28px;
+  background: #fffdf9;
+  border: 1px solid #ece5db;
+}
+
+.request-history {
+  margin-top: 48px;
+}
+
+.request-history h2 {
+  margin-bottom: 18px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+}
+
+.studio-booking-action,
+.pottery-card button,
+.cancel-booking-button {
+  margin: 10px 8px 0 0;
+  padding: 9px 14px;
+  border: 0;
+  background: #a45d42;
+  color: #fff;
+  cursor: pointer;
 }
 
 .hero {
@@ -275,6 +347,7 @@ footer {
 
   .site-header nav {
     gap: 14px;
+    justify-content: flex-end;
   }
 
   .hero {
@@ -769,7 +842,7 @@ footer {
   padding: 30px;
   background:
     linear-gradient(90deg, rgba(28, 21, 17, 0.82), rgba(28, 21, 17, 0.2)),
-    url("/images/welcome-art.jpg") center / cover no-repeat,
+    url("/images/p-001.jpg") center / cover no-repeat,
     #eee3d5;
   color: #fffaf3;
 }

@@ -5,9 +5,18 @@ const fs = require("fs");
 const path = require("path");
 
 // Database and seed file locations
-const dataFolder = path.join(__dirname, "../data");
-const databasePath = path.join(dataFolder, "art-studio.db");
-const seedPath = path.join(dataFolder, "seed.json");
+const defaultDataFolder = path.join(__dirname, "../data");
+const databasePath = process.env.DATABASE_PATH ||
+  path.join(defaultDataFolder, "art-studio.db");
+const seedPath = process.env.SEED_PATH ||
+  path.join(defaultDataFolder, "seed.json");
+
+// Render persistent disks are mounted before the service starts. This also
+// keeps local development convenient when DATABASE_PATH points elsewhere.
+const databaseFolder = path.dirname(databasePath);
+if (!fs.existsSync(databaseFolder)) {
+  fs.mkdirSync(databaseFolder, { recursive: true });
+}
 
 // Make sure the seed file exists
 if (!fs.existsSync(seedPath)) {

@@ -16,18 +16,29 @@ const bookingsRouter = require("./routes/bookings");
 const potteryRouter = require("./routes/pottery");
 const app = express();
 const PORT = process.env.PORT || 3000;
+const isProduction = process.env.NODE_ENV === "production";
+const sessionSecret = process.env.SESSION_SECRET ||
+  (isProduction ? null : "local-development-secret-change-me");
+
+if (!sessionSecret) {
+  throw new Error("SESSION_SECRET must be set when NODE_ENV=production.");
+}
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
 
 app.use(express.json());
 
 app.use(session({
   name: "connect.sid",
-  secret: process.env.SESSION_SECRET || "local-development-secret-change-me",
+  secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
     sameSite: "lax",
-    secure: false,
+    secure: isProduction,
     maxAge: 1000 * 60 * 60 * 4
   }
 }));
@@ -46,6 +57,10 @@ app.use("/api/paintings", paintingsRouter);
 app.post("/api/auth/register", require("./auth").register);
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/pottery", potteryRouter);
-app.listen(PORT, () => {
-  console.log(`Art Studio server running at http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Art Studio server running at http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

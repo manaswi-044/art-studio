@@ -76,6 +76,7 @@ async function loadPaintings() {
 
     status.textContent = `${paintings.length} paintings in the collection`;
     setupHorizontalGallery(paintings.length);
+    setupRevealAnimations();
 
   } catch (error) {
     console.error(error);
@@ -134,6 +135,38 @@ function setupHorizontalGallery(paintingCount) {
 
   window.requestAnimationFrame(updateMeasurements);
 }
+
+function setupRevealAnimations() {
+  const revealItems = document.querySelectorAll(
+    ".hero, .section-heading, .form-card, .request-history, .painting-card, .hgl-bottom"
+  );
+
+  if (!revealItems.length) return;
+
+  if (!("IntersectionObserver" in window)) {
+    revealItems.forEach((item) => {
+      item.classList.add("reveal", "is-visible");
+    });
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries, currentObserver) => {
+    entries.forEach((entry) => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("is-visible");
+      currentObserver.unobserve(entry.target);
+    });
+  }, { threshold: 0.12 });
+
+  revealItems.forEach((item) => {
+    if (!item.classList.contains("painting-card")) {
+      item.classList.add("reveal");
+    }
+    observer.observe(item);
+  });
+}
+
+setupRevealAnimations();
 
 if (document.getElementById("gallery-grid")) {
   loadPaintings();

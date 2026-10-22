@@ -6,6 +6,7 @@ const logoutButton = document.getElementById("logout-button");
 const welcomeScreen = document.getElementById("welcome-screen");
 const loginForm = document.getElementById("login-form");
 const registerForm = document.getElementById("register-form");
+const closeAuth = document.getElementById("close-auth");
 let authPanelRequested = false;
 const pageName = window.location.pathname.split("/").pop() || "index.html";
 const isWelcomePage = pageName === "index.html" || pageName === "";
@@ -14,6 +15,7 @@ const customerPages = new Set(["home.html", "wall-painting.html", "pottery.html"
 function showAuthPanel(form) {
   authPanelRequested = true;
   if (!welcomeScreen || !accountSection || !loginForm || !registerForm) return;
+  document.body.classList.add("auth-open");
   welcomeScreen.hidden = true;
   accountSection.hidden = false;
   loginForm.hidden = form !== loginForm;
@@ -22,6 +24,14 @@ function showAuthPanel(form) {
     behavior: "auto",
     block: "center"
   });
+}
+
+function closeAuthPanel() {
+  if (!welcomeScreen || !accountSection) return;
+  document.body.classList.remove("auth-open");
+  accountSection.hidden = true;
+  welcomeScreen.hidden = false;
+  authPanelRequested = false;
 }
 
 async function loadPaintings() {
@@ -176,6 +186,7 @@ const welcomeLogin = document.getElementById("welcome-login");
 const welcomeRegister = document.getElementById("welcome-register");
 if (welcomeLogin) welcomeLogin.addEventListener("click", () => showAuthPanel(loginForm));
 if (welcomeRegister) welcomeRegister.addEventListener("click", () => showAuthPanel(registerForm));
+if (closeAuth) closeAuth.addEventListener("click", closeAuthPanel);
 
 
 async function refreshAccount() {
